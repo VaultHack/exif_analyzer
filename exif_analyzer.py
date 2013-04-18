@@ -4,10 +4,12 @@ import sys
 import os
 import string
 import csv
+import cairo
 
 from PIL import Image
 from PIL.ExifTags import TAGS
 
+import cairoplot
 dirname = sys.argv[1]
 
 print("Searching folder: %s\n"%(dirname))
@@ -89,25 +91,25 @@ for filename in os.listdir(dirname):
                 else: 
                     camera_dict[full_camera] = 1
 
-                if aperture in aperture_dict:
-                    aperture_dict[aperture] = aperture_dict[aperture] + 1
+                if str(aperture) in aperture_dict:
+                    aperture_dict[str(aperture)] = aperture_dict[str(aperture)] + 1
                 else: 
-                    aperture_dict[aperture] = 1
+                    aperture_dict[str(aperture)] = 1
                     
-                if exposure in exposure_dict:
-                    exposure_dict[exposure] = exposure_dict[exposure] + 1
+                if str(exposure) in exposure_dict:
+                    exposure_dict[str(exposure)] = exposure_dict[str(exposure)] + 1
                 else: 
-                    exposure_dict[exposure] = 1
+                    exposure_dict[str(exposure)] = 1
 
-                if focallength in focallength_dict:
-                    focallength_dict[focallength] = focallength_dict[focallength] + 1
+                if str(focallength) in focallength_dict:
+                    focallength_dict[str(focallength)] = focallength_dict[str(focallength)] + 1
                 else: 
-                    focallength_dict[focallength] = 1
+                    focallength_dict[str(focallength)] = 1
 
-                if iso in iso_dict:
-                    iso_dict[iso] = iso_dict[iso] + 1
+                if str(iso) in iso_dict:
+                    iso_dict[str(iso)] = iso_dict[str(iso)] + 1
                 else: 
-                    iso_dict[iso] = 1
+                    iso_dict[str(iso)] = 1
 
             except AttributeError:
                 #print("Found no EXIF header... Skipping picture %s"%full_file)
@@ -120,4 +122,15 @@ print("Focallength: %s\n"%focallength_dict)
 print("ISOs: %s\n"%iso_dict)
 
 write_csv_from_dict(camera_dict, "cameras.csv")
+write_csv_from_dict(iso_dict, "iso.csv")
 
+ #Define a new backgrond
+background = cairo.LinearGradient(300, 0, 300, 400)
+background.add_color_stop_rgb(0.0,0.0,0.0,0.0)
+background.add_color_stop_rgb(0.7,0.7,0.7,0.7)
+
+cairoplot.pie_plot("cameras", camera_dict, 700, 700, background = background, gradient = True, shadow = True)
+cairoplot.pie_plot("apertures", aperture_dict, 500, 500, background = background, gradient = True, shadow = True)
+cairoplot.pie_plot("exposures", exposure_dict, 500, 500, background = background, gradient = True, shadow = True)
+cairoplot.pie_plot("focallength", focallength_dict, 500, 500, background = background, gradient = True, shadow = True)
+cairoplot.pie_plot("iso", iso_dict, 500, 500, background = background, gradient = True, shadow = True)
